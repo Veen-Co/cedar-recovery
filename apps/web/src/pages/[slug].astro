@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Hero from '../components/blocks/Hero.astro'
+import PageBlockRenderer from '../components/blocks/PageBlockRenderer.astro'
+import { getPages, resolveMediaUrl } from '../lib/payload'
+import type { Page } from 'types'
+
+export async function getStaticPaths() {
+  const pages = await getPages()
+  return pages.map((page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }))
+}
+
+interface Props {
+  page: Page
+}
+
+const { page } = Astro.props
+const metaImage = resolveMediaUrl(typeof page.meta?.image === 'object' ? page.meta.image?.url : undefined)
+---
+
+<Layout
+	title={page.meta?.title || page.title}
+	description={page.meta?.description ?? undefined}
+	image={metaImage}
+>
+	<Hero hero={page.hero} title={page.title} />
+	{page.layout && page.layout.length > 0 && <PageBlockRenderer blocks={page.layout} />}
+</Layout>

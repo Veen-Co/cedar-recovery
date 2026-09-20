@@ -1,0 +1,47 @@
+---
+import Container from '../primitives/Container.astro'
+import { resolveMediaUrl } from '../../lib/payload'
+
+interface Props {
+  heading?: string | null
+  projects?:
+    | {
+        title: string
+        description?: string | null
+        image?: number | { url?: string | null; alt?: string | null } | null
+        link?: string | null
+      }[]
+    | null
+}
+
+const { heading, projects } = Astro.props
+---
+
+<section class="py-16">
+	<Container>
+		{heading && <h2 class="text-center text-2xl font-semibold">{heading}</h2>}
+		<div class:list={['grid gap-8 sm:grid-cols-2 lg:grid-cols-3', heading && 'mt-10']}>
+			{
+				projects?.map((project) => {
+					const image = typeof project.image === 'object' ? project.image : undefined
+					const imageUrl = resolveMediaUrl(image?.url)
+					return (
+						<div>
+							{imageUrl && (
+								<img
+									src={imageUrl}
+									alt={image?.alt ?? ''}
+									class="mb-4 aspect-video w-full rounded-lg object-cover"
+								/>
+							)}
+							<h3 class="font-medium">
+								{project.link ? <a href={project.link}>{project.title}</a> : project.title}
+							</h3>
+							{project.description && <p class="mt-2 text-muted">{project.description}</p>}
+						</div>
+					)
+				})
+			}
+		</div>
+	</Container>
+</section>

@@ -1,0 +1,44 @@
+---
+import Container from '../primitives/Container.astro'
+import { getPosts, resolveMediaUrl } from '../../lib/payload'
+
+interface Props {
+  heading?: string | null
+  limit?: number | null
+  category?: number | { id: number } | null
+}
+
+const { heading, limit, category } = Astro.props
+const categoryId = typeof category === 'object' ? category?.id : (category ?? undefined)
+const posts = await getPosts({ categoryId, limit: limit ?? 3 })
+---
+
+<section class="py-16">
+	<Container>
+		{heading && <h2 class="text-center text-2xl font-semibold">{heading}</h2>}
+		<div class:list={['grid gap-8 sm:grid-cols-2 lg:grid-cols-3', heading && 'mt-10']}>
+			{
+				posts.map((post) => {
+					// Canonical thumbnail source: the SEO tab's image (already
+					// defaulted to hero.image by generateImage in payload.config.ts)
+					// — no image at all is a fine, expected outcome.
+					const image = typeof post.meta?.image === 'object' ? post.meta.image : undefined
+					const imageUrl = resolveMediaUrl(image?.url)
+					return (
+						<a href={`/posts/${post.slug}`} class="block">
+							{imageUrl && (
+								<img
+									src={imageUrl}
+									alt={image?.alt ?? ''}
+									class="mb-4 aspect-video w-full rounded-lg object-cover"
+								/>
+							)}
+							<h3 class="font-medium">{post.title}</h3>
+							<p class="mt-2 text-muted">{post.summary}</p>
+						</a>
+					)
+				})
+			}
+		</div>
+	</Container>
+</section>

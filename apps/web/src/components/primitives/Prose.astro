@@ -1,0 +1,13 @@
+---
+// Wraps set:html-rendered rich text (Post bodies, Content-block columns)
+// with consistent typography via @tailwindcss/typography.
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+---
+
+<div class:list={['prose max-w-none', className]}>
+	<slot />
+</div>

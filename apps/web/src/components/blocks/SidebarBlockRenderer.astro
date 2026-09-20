@@ -1,0 +1,26 @@
+---
+// Adding a new sidebar block type: (1) add its block config in
+// apps/cms/src/blocks, (2) add a matching Astro component here, (3) add a
+// case below.
+import type { Post } from 'types'
+import Callout from './Callout.astro'
+
+interface Props {
+  blocks: NonNullable<Post['sidebar']>
+}
+
+const { blocks } = Astro.props
+---
+
+<div>
+	{
+		blocks.map((block) => {
+			switch (block.blockType) {
+				case 'callout':
+					return <Callout heading={block.heading} text={block.text} />
+				default:
+					return null
+			}
+		})
+	}
+</div>

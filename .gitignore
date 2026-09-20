@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.next/
+.turbo/
+.env
+.env.local
+media/
+.DS_Store
+*.log
+.neon

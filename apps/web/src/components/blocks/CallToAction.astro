@@ -1,0 +1,27 @@
+---
+import Button from '../primitives/Button.astro'
+import Container from '../primitives/Container.astro'
+
+interface Props {
+  heading: string
+  text?: string | null
+  buttonLabel?: string | null
+  buttonUrl?: string | null
+}
+
+const { heading, text, buttonLabel, buttonUrl } = Astro.props
+---
+
+<section class="py-16">
+	<Container class="text-center">
+		<h2 class="text-2xl font-semibold">{heading}</h2>
+		{text && <p class="mt-4 text-muted">{text}</p>}
+		{
+			buttonLabel && buttonUrl && (
+				<Button href={buttonUrl} class="mt-6">
+					{buttonLabel}
+				</Button>
+			)
+		}
+	</Container>
+</section>

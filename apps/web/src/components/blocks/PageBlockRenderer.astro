@@ -1,0 +1,51 @@
+---
+// Adding a new page block: (1) add its block config in
+// apps/cms/src/blocks + pageBlocks.ts, (2) add a matching Astro component
+// here, (3) add a case below.
+import CallToAction from './CallToAction.astro'
+import Content from './Content.astro'
+import FAQ from './FAQ.astro'
+import FeatureGrid from './FeatureGrid.astro'
+import LatestPosts from './LatestPosts.astro'
+import ProjectGrid from './ProjectGrid.astro'
+import Testimonials from './Testimonials.astro'
+import type { Page } from 'types'
+
+interface Props {
+  // Home['layout'] is structurally identical (both come from the shared
+  // pageBlocks list) even though Payload generates it as an independent type.
+  blocks: NonNullable<Page['layout']>
+}
+
+const { blocks } = Astro.props
+---
+
+{
+	blocks.map((block) => {
+		switch (block.blockType) {
+			case 'content':
+				return <Content columns={block.columns} />
+			case 'featureGrid':
+				return <FeatureGrid heading={block.heading} features={block.features} />
+			case 'callToAction':
+				return (
+					<CallToAction
+						heading={block.heading}
+						text={block.text}
+						buttonLabel={block.buttonLabel}
+						buttonUrl={block.buttonUrl}
+					/>
+				)
+			case 'testimonials':
+				return <Testimonials heading={block.heading} items={block.items} />
+			case 'faq':
+				return <FAQ heading={block.heading} items={block.items} />
+			case 'projectGrid':
+				return <ProjectGrid heading={block.heading} projects={block.projects} />
+			case 'latestPosts':
+				return <LatestPosts heading={block.heading} limit={block.limit} category={block.category} />
+			default:
+				return null
+		}
+	})
+}

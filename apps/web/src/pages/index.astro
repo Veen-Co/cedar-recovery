@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Hero from '../components/blocks/Hero.astro'
+import PageBlockRenderer from '../components/blocks/PageBlockRenderer.astro'
+import { getHome, resolveMediaUrl } from '../lib/payload'
+
+const home = await getHome()
+const metaImage = resolveMediaUrl(typeof home.meta?.image === 'object' ? home.meta.image?.url : undefined)
+---
+
+<Layout title={home.meta?.title || 'Home'} description={home.meta?.description ?? undefined} image={metaImage}>
+	<Hero hero={home.hero} />
+	{home.layout && home.layout.length > 0 && <PageBlockRenderer blocks={home.layout} />}
+</Layout>

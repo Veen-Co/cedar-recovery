@@ -1,0 +1,60 @@
+---
+import Button from '../primitives/Button.astro'
+import Container from '../primitives/Container.astro'
+import { resolveMediaUrl } from '../../lib/payload'
+
+// A local structural type rather than importing Post['hero'] | Page['hero'] |
+// Home['hero'] — Payload generates those as independent inline shapes per
+// collection/global, so TypeScript can't see they're structurally identical
+// even though they all come from the same shared heroFields.
+interface HeroData {
+  variant?: 'default' | 'minimal' | 'imageForward' | null
+  heading?: string | null
+  subheading?: string | null
+  image?: number | { url?: string | null; alt?: string | null } | null
+  cta?: { label?: string | null; url?: string | null } | null
+}
+
+interface Props {
+  hero?: HeroData | null
+  // Falls back to this when hero.heading is empty — the document's own
+  // title (Home has none, so this is optional).
+  title?: string
+}
+
+const { hero, title } = Astro.props
+const heading = hero?.heading || title
+const subheading = hero?.subheading
+const variant = hero?.variant || 'default'
+// "minimal" is a deliberate per-variant choice to never show an image, even
+// if one happens to be set — see the frontend-convention note in the plan.
+const image = variant === 'minimal' ? undefined : typeof hero?.image === 'object' ? hero.image : undefined
+const imageUrl = resolveMediaUrl(image?.url)
+const ctaLabel = hero?.cta?.label
+const ctaUrl = hero?.cta?.url
+const sideBySide = variant === 'default' && Boolean(imageUrl)
+---
+
+<section class="py-16">
+	<Container>
+		{
+			variant === 'imageForward' && imageUrl && (
+				<img src={imageUrl} alt={image?.alt ?? ''} class="mb-8 w-full rounded-lg object-cover" />
+			)
+		}
+		<div class:list={['flex flex-col gap-8', sideBySide ? 'md:flex-row md:items-center' : 'items-center text-center']}>
+			<div class:list={[sideBySide ? 'md:w-1/2' : 'max-w-2xl']}>
+				{heading && <h1 class="text-4xl font-semibold">{heading}</h1>}
+				{subheading && <p class="mt-4 text-lg text-muted">{subheading}</p>}
+				{ctaLabel && ctaUrl && (
+					<Button href={ctaUrl} class="mt-6">
+						{ctaLabel}
+					</Button>
+				)}
+			</div>
+			{sideBySide && imageUrl && (
+				<img src={imageUrl} alt={image?.alt ?? ''} class="rounded-lg object-cover md:w-1/2" />
+			)}
+		</div>
+	</Container>
+</section>

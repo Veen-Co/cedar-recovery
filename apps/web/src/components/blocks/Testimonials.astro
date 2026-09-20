@@ -1,0 +1,29 @@
+---
+import Container from '../primitives/Container.astro'
+
+interface Props {
+  heading?: string | null
+  items?: { quote: string; authorName: string; authorTitle?: string | null }[] | null
+}
+
+const { heading, items } = Astro.props
+---
+
+<section class="py-16">
+	<Container>
+		{heading && <h2 class="text-center text-2xl font-semibold">{heading}</h2>}
+		<div class:list={['grid gap-8 md:grid-cols-2', heading && 'mt-10']}>
+			{
+				items?.map((item) => (
+					<figure class="rounded-lg border border-border p-6">
+						<blockquote class="text-lg">&ldquo;{item.quote}&rdquo;</blockquote>
+						<figcaption class="mt-4 text-sm text-muted">
+							{item.authorName}
+							{item.authorTitle && `, ${item.authorTitle}`}
+						</figcaption>
+					</figure>
+				))
+			}
+		</div>
+	</Container>
+</section>

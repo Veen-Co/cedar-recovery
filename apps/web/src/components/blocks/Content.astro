@@ -1,0 +1,44 @@
+---
+import Container from '../primitives/Container.astro'
+import Prose from '../primitives/Prose.astro'
+import { lexicalToHtml, type SerializedLexicalState } from '../../lib/lexicalToHtml'
+
+interface Column {
+  size?: 'oneThird' | 'half' | 'twoThirds' | 'full' | null
+  richText?: SerializedLexicalState | null
+  enableLink?: boolean | null
+  link?: { label?: string | null; url?: string | null }
+}
+
+interface Props {
+  columns?: Column[] | null
+}
+
+const { columns } = Astro.props
+
+const sizeClasses: Record<string, string> = {
+  oneThird: 'md:w-1/3',
+  half: 'md:w-1/2',
+  twoThirds: 'md:w-2/3',
+  full: 'w-full',
+}
+---
+
+<section class="py-16">
+	<Container>
+		<div class="flex flex-wrap gap-8">
+			{
+				columns?.map((column) => (
+					<div class:list={['w-full', sizeClasses[column.size ?? 'oneThird']]}>
+						{column.richText && <Prose set:html={lexicalToHtml(column.richText)} />}
+						{column.enableLink && column.link?.url && (
+							<a href={column.link.url} class="mt-4 inline-block text-primary underline">
+								{column.link.label || 'Learn more'}
+							</a>
+						)}
+					</div>
+				))
+			}
+		</div>
+	</Container>
+</section>

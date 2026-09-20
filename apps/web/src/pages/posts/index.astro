@@ -1,0 +1,31 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import { getPosts } from '../../lib/payload'
+
+const posts = await getPosts()
+---
+
+<Layout title="Posts">
+	<main class="mx-auto max-w-(--container-content) px-6 py-12">
+		<h1 class="text-3xl font-semibold">Posts</h1>
+		<ul class="mt-8 space-y-8">
+			{
+				posts.map((post) => (
+					<li class="border-b border-border pb-8">
+						<a href={`/posts/${post.slug}`}>
+							<strong class="text-lg">{post.title}</strong>
+						</a>
+						<p class="mt-2 text-muted">{post.summary}</p>
+						{post.externalLink?.url && (
+							<p class="mt-2">
+								<a class="text-primary underline" href={post.externalLink.url}>
+									{post.externalLink.label || 'Read more'}
+								</a>
+							</p>
+						)}
+					</li>
+				))
+			}
+		</ul>
+	</main>
+</Layout>

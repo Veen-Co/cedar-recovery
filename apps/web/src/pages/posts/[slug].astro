@@ -1,0 +1,39 @@
+---
+import PostLayout from '../../layouts/PostLayout.astro'
+import Prose from '../../components/primitives/Prose.astro'
+import { lexicalToHtml } from '../../lib/lexicalToHtml'
+import { getPosts } from '../../lib/payload'
+import type { Post } from 'types'
+
+export async function getStaticPaths() {
+  const posts = await getPosts()
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }))
+}
+
+interface Props {
+  post: Post
+}
+
+const { post } = Astro.props
+const bodyHtml = post.body ? lexicalToHtml(post.body) : null
+---
+
+<PostLayout post={post}>
+	<a class="text-sm text-muted" href="/">&larr; All posts</a>
+	<p class="mt-4 text-lg text-muted">{post.summary}</p>
+
+	{
+		post.externalLink?.url && (
+			<p class="mt-4">
+				<a class="text-primary underline" href={post.externalLink.url}>
+					{post.externalLink.label || 'Read more'}
+				</a>
+			</p>
+		)
+	}
+
+	{bodyHtml && <Prose class="mt-8" set:html={bodyHtml} />}
+</PostLayout>

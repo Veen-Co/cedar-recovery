@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:neon.com)",
+      "Bash(pnpm install *)",
+      "Bash(node -e \"console.log\\(JSON.stringify\\(require\\('./node_modules/.pnpm/@payloadcms+richtext-lexical@3.90.1/node_modules/@payloadcms/richtext-lexical/package.json'\\).exports, null, 2\\)\\)\")",
+      "Bash(node -e \"const pkg = require\\('./node_modules/.pnpm/@payloadcms+richtext-lexical@3.90.1/node_modules/@payloadcms/richtext-lexical/package.json'\\); console.log\\(Object.keys\\(pkg.exports || {}\\).join\\('\\\\n'\\)\\)\")",
+      "Bash(node -e \"const pkg = require\\('@payloadcms/richtext-lexical/package.json'\\); console.log\\(Object.keys\\(pkg.exports || {}\\).join\\('\\\\n'\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; pkg=json.load\\(sys.stdin\\); print\\('\\\\n'.join\\(pkg.get\\('exports',{}\\).keys\\(\\)\\)\\)\")",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:payloadcms.com)",
+      "Bash(npm view *)",
+      "Bash(find /Users/drewvanderveen/Documents/Builds/AstroSite/node_modules/.pnpm/@payloadcms+plugin-seo@3.90.1_@types+react@19.2.14_monaco-editor@0.56.0_next@16.3.3_@ba_637658043ec724ee742aca615c28db66/node_modules/@payloadcms/plugin-seo/dist -iname *.js)",
+      "Bash(npx astro *)",
+      "Bash(pnpm check *)",
+      "Bash(python3 -c \"import json,sys; vs=json.load\\(sys.stdin\\); print\\([v for v in vs if v.startswith\\('6.'\\)][-5:]\\)\")",
+      "WebFetch(domain:www.buildwithmatija.com)",
+      "Bash(node \"/private/tmp/claude-501/-Users-drewvanderveen-Documents-Builds-AstroSite/21a2b094-0ab9-4b60-9e50-f9655ef4845f/scratchpad/clear-dev-migration-marker.mjs\")",
+      "Bash(node \"/private/tmp/claude-501/-Users-drewvanderveen-Documents-Builds-AstroSite/21a2b094-0ab9-4b60-9e50-f9655ef4845f/scratchpad/mark-migration-applied.mjs\")",
+      "Bash(rm \"/private/tmp/claude-501/-Users-drewvanderveen-Documents-Builds-AstroSite/21a2b094-0ab9-4b60-9e50-f9655ef4845f/scratchpad/mark-migration-applied.mjs\")",
+      "Bash(pnpm migrate:status)",
+      "Bash(pnpm build *)"
+    ]
+  }
+}
