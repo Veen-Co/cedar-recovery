@@ -50,7 +50,7 @@ export default buildConfig({
       },
       // Neon Object Storage: S3-compatible, but path-style only (not virtual-hosted-style),
       // and the bucket name isn't injected as an env var — it's a literal from `neon buckets list`.
-      bucket: 'astrosite',
+      bucket: 'cedar-bucket',
       config: {
         credentials: {
           accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
@@ -72,7 +72,7 @@ export default buildConfig({
       tabbedUI: true,
       // Called by the SEO tab's "generate" button — kept generic across
       // Posts, Pages, and Home's differing shapes.
-      generateTitle: ({ doc }) => (doc?.title as string) || 'AstroSite',
+      generateTitle: ({ doc }) => (doc?.title as string) || 'Cedar Recovery Resources',
       generateDescription: ({ doc }) =>
         (doc?.summary as string) || (doc?.hero as { subheading?: string })?.subheading || '',
       generateImage: ({ doc }) => (doc?.hero as { image?: unknown })?.image,

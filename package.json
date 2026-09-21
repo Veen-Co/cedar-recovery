@@ -1,5 +1,5 @@
 {
-  "name": "astrosite",
+  "name": "cedar-recovery-resources",
   "private": true,
   "scripts": {
     "dev": "turbo run dev",

@@ -3,18 +3,19 @@ import { defineConfig } from "@neon/config/v1";
 export default defineConfig({
   // Declare your Neon services here
   auth: false,
-  // Branch policy: per-branch tuning
+  preview: {
+    buckets: {
+      // Bucket name isn't an env var — it's also a literal in payload.config.ts's s3Storage() call.
+      "cedar-bucket": { access: "private" },
+    },
+  },
+  // Branch policy, applied when `neon checkout <name>` creates a branch
   branch: (branch) => {
-    if (branch.isDefault) {
-      // Default branch: no overrides, uses project defaults
-      return {};
-    }
-    if (!branch.exists) {
-      // New non-default branches: auto-expire
-      // Run `neon checkout <name>` to create a new branch with these settings
-      return { ttl: "7d" };
-    }
-    // Existing branch: no changes
+    if (branch.isDefault) return {};
+    // New throwaway branches (previews, experiments) auto-expire.
+    if (branch.name.startsWith("preview/")) return { ttl: "14d" };
+    // Exempt long-lived ones like `staging`.
+    if (branch.name === "staging") return {};
     return {};
   },
 });
