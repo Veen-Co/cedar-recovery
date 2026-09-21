@@ -75,7 +75,7 @@ export default buildConfig({
       generateTitle: ({ doc }) => (doc?.title as string) || 'Cedar Recovery Resources',
       generateDescription: ({ doc }) =>
         (doc?.summary as string) || (doc?.hero as { subheading?: string })?.subheading || '',
-      generateImage: ({ doc }) => (doc?.hero as { image?: unknown })?.image,
+      generateImage: ({ doc }) => (doc?.hero as { image?: number | { id: number } | null })?.image || '',
     }),
   ],
 })
