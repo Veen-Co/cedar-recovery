@@ -1,0 +1,48 @@
+name: CI
+
+# Checks only — Vercel handles deploys (see SETUP.md). Runs on every PR and
+# on pushes to main.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A newer push to the same branch/PR supersedes an in-flight run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Typecheck and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      # No `version:` here — pnpm/action-setup reads the root package.json's
+      # `packageManager` field, so CI always matches local and Vercel.
+      - uses: pnpm/action-setup@v6
+
+      # Must come after pnpm setup so `cache: pnpm` can find the pnpm binary.
+      # apps/web requires Node >=22.12 (see its package.json `engines`).
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Runs `tsc --noEmit` in apps/cms and `astro check` in apps/web.
+      - run: pnpm typecheck
+
+      - run: pnpm lint
+
+# Deliberately not run here (no secrets or live services needed for the above):
+#  - apps/cms `build`: runs `payload migrate` against a real database.
+#  - apps/web `build`: fetches from a live CMS at build time.
+#  - apps/cms vitest/playwright suites: need a database (DATABASE_URL).
+# Vercel's own builds cover the first two on every deploy.
