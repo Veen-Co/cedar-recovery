@@ -21,7 +21,10 @@
       "Bash(node \"/private/tmp/claude-501/-Users-drewvanderveen-Documents-Builds-AstroSite/21a2b094-0ab9-4b60-9e50-f9655ef4845f/scratchpad/mark-migration-applied.mjs\")",
       "Bash(rm \"/private/tmp/claude-501/-Users-drewvanderveen-Documents-Builds-AstroSite/21a2b094-0ab9-4b60-9e50-f9655ef4845f/scratchpad/mark-migration-applied.mjs\")",
       "Bash(pnpm migrate:status)",
-      "Bash(pnpm build *)"
+      "Bash(pnpm build *)",
+      "Bash(pnpm --version)",
+      "Bash(npm install *)",
+      "Bash(COREPACK_ENABLE_STRICT=0 pnpm --filter cms add @payloadcms/email-resend@3.90.1)"
     ]
   }
 }
