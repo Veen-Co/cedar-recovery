@@ -1,0 +1,48 @@
+---
+// Post Categories / You May Also Like are fixed sections — same pattern
+// as the homepage's PostGrid (always rendered, not a configurable block).
+// The editor-configurable `sidebar` Callout blocks still work as before,
+// rendered below these.
+import { getRelatedPosts } from '../../lib/payload'
+import PostCard from './PostCard.astro'
+import SidebarBlockRenderer from './SidebarBlockRenderer.astro'
+import type { Category, Post } from 'types'
+
+interface Props {
+  post: Post
+}
+
+const { post } = Astro.props
+const categories = (post.categories ?? []).filter((c): c is Category => typeof c === 'object')
+const related = await getRelatedPosts(post)
+---
+
+<aside class="flex flex-col gap-10">
+	{
+		categories.length > 0 && (
+			<div class="flex flex-col gap-6">
+				<p class="text-base tracking-[-0.24px] text-accent">Post Categories</p>
+				<div class="flex flex-wrap items-center gap-[10px]">
+					{categories.map((category) => (
+						<span class="rounded-full bg-accent-subtle px-2 py-1 text-xs leading-[1.15] tracking-[-0.12px] text-accent-subtle-foreground whitespace-nowrap">
+							{category.name}
+						</span>
+					))}
+				</div>
+			</div>
+		)
+	}
+	{
+		related.length > 0 && (
+			<div class="flex flex-col gap-6">
+				<p class="text-base tracking-[-0.24px] text-accent">You May Also Like</p>
+				<div class="flex flex-col gap-3">
+					{related.map((relatedPost) => (
+						<PostCard post={relatedPost} compact />
+					))}
+				</div>
+			</div>
+		)
+	}
+	{post.sidebar && post.sidebar.length > 0 && <SidebarBlockRenderer blocks={post.sidebar} />}
+</aside>

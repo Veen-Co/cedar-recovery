@@ -30,6 +30,28 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
   return docs[0] ?? null
 }
 
+// Posts sharing a category with `post`, excluding itself. Falls back to the
+// latest other posts when there's no category overlap (or `post` has no
+// categories at all), so the "You May Also Like" sidebar section isn't just
+// empty on a lightly-categorized site.
+export async function getRelatedPosts(post: Post, limit = 3): Promise<Post[]> {
+  const categoryIds = (post.categories ?? [])
+    .map((category) => (typeof category === 'object' ? category.id : category))
+    .filter((id): id is number => typeof id === 'number')
+
+  if (categoryIds.length > 0) {
+    const { docs } = await payloadFetch<PayloadListResponse<Post>>(
+      `/posts?sort=-publishedDate&depth=2&limit=${limit}&where[categories][in]=${categoryIds.join(',')}&where[id][not_equals]=${post.id}`,
+    )
+    if (docs.length > 0) return docs
+  }
+
+  const { docs } = await payloadFetch<PayloadListResponse<Post>>(
+    `/posts?sort=-publishedDate&depth=2&limit=${limit}&where[id][not_equals]=${post.id}`,
+  )
+  return docs
+}
+
 export async function getCategories(): Promise<Category[]> {
   const { docs } = await payloadFetch<PayloadListResponse<Category>>(
     '/categories?depth=0&limit=100',

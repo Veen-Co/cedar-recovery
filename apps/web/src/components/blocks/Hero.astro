@@ -23,6 +23,9 @@ interface Props {
 }
 
 const { hero, title } = Astro.props
+// Falls back to the document's own title when hero copy is empty. For
+// `default`/`imageForward` this is the big headline; for `minimal` it's
+// the small eyebrow label instead — see the variant branch below.
 const heading = hero?.heading || title
 const subheading = hero?.subheading
 const variant = hero?.variant || 'default'
@@ -37,24 +40,41 @@ const sideBySide = variant === 'default' && Boolean(imageUrl)
 
 <section class="py-16">
 	<Container>
-		{
-			variant === 'imageForward' && imageUrl && (
-				<img src={imageUrl} alt={image?.alt ?? ''} class="mb-8 w-full rounded-lg object-cover" />
-			)
-		}
-		<div class:list={['flex flex-col gap-8', sideBySide ? 'md:flex-row md:items-center' : 'items-center text-center']}>
-			<div class:list={[sideBySide ? 'md:w-1/2' : 'max-w-2xl']}>
-				{heading && <h1 class="text-4xl font-semibold">{heading}</h1>}
-				{subheading && <p class="mt-4 text-lg text-muted">{subheading}</p>}
-				{ctaLabel && ctaUrl && (
-					<Button href={ctaUrl} class="mt-6">
-						{ctaLabel}
-					</Button>
+		{variant === 'minimal' ? (
+			// heading (title) is still the <h1> — a heading tag doesn't have
+			// to be the biggest text on the page, and a short, scannable
+			// title is more useful to a screen reader or search engine than
+			// a full sentence of prose would be. subheading is styled big
+			// and serif per the design, but stays a <p>.
+			<div class="flex max-w-3xl flex-col items-start gap-6">
+				{heading && <h1 class="text-base tracking-[-0.24px] text-accent">{heading}</h1>}
+				{subheading && (
+					<p class="font-serif text-[32px] leading-[1.1] tracking-[-0.64px] text-foreground">
+						{subheading}
+					</p>
 				)}
+				{ctaLabel && ctaUrl && <Button href={ctaUrl}>{ctaLabel}</Button>}
 			</div>
-			{sideBySide && imageUrl && (
-				<img src={imageUrl} alt={image?.alt ?? ''} class="rounded-lg object-cover md:w-1/2" />
-			)}
-		</div>
+		) : (
+			<>
+				{variant === 'imageForward' && imageUrl && (
+					<img src={imageUrl} alt={image?.alt ?? ''} class="mb-8 w-full rounded-lg object-cover" />
+				)}
+				<div class:list={['flex flex-col gap-8', sideBySide ? 'md:flex-row md:items-center' : 'items-center text-center']}>
+					<div class:list={[sideBySide ? 'md:w-1/2' : 'max-w-2xl']}>
+						{heading && <h1 class="text-4xl font-semibold">{heading}</h1>}
+						{subheading && <p class="mt-4 text-lg text-muted">{subheading}</p>}
+						{ctaLabel && ctaUrl && (
+							<Button href={ctaUrl} class="mt-6">
+								{ctaLabel}
+							</Button>
+						)}
+					</div>
+					{sideBySide && imageUrl && (
+						<img src={imageUrl} alt={image?.alt ?? ''} class="rounded-lg object-cover md:w-1/2" />
+					)}
+				</div>
+			</>
+		)}
 	</Container>
 </section>

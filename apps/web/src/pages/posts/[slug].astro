@@ -22,18 +22,7 @@ const bodyHtml = post.body ? lexicalToHtml(post.body) : null
 ---
 
 <PostLayout post={post}>
-	<a class="text-sm text-muted" href="/">&larr; All posts</a>
-	<p class="mt-4 text-lg text-muted">{post.summary}</p>
-
-	{
-		post.externalLink?.url && (
-			<p class="mt-4">
-				<a class="text-primary underline" href={post.externalLink.url}>
-					{post.externalLink.label || 'Read more'}
-				</a>
-			</p>
-		)
-	}
-
-	{bodyHtml && <Prose class="mt-8" set:html={bodyHtml} />}
+	{/* PostHeader (in PostLayout) already renders summary + externalLink CTA */}
+	<a class="text-sm text-muted" href="/posts">&larr; All posts</a>
+	{bodyHtml && <Prose class="mt-4" set:html={bodyHtml} />}
 </PostLayout>

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import Hero from '../components/blocks/Hero.astro'
+import PostGrid from '../components/blocks/PostGrid.astro'
 import PageBlockRenderer from '../components/blocks/PageBlockRenderer.astro'
 import { getHome, resolveMediaUrl } from '../lib/payload'
 
@@ -10,5 +11,6 @@ const metaImage = resolveMediaUrl(typeof home.meta?.image === 'object' ? home.me
 
 <Layout title={home.meta?.title || 'Home'} description={home.meta?.description ?? undefined} image={metaImage}>
 	<Hero hero={home.hero} />
+	<PostGrid />
 	{home.layout && home.layout.length > 0 && <PageBlockRenderer blocks={home.layout} />}
 </Layout>
