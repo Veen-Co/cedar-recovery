@@ -1,18 +1,77 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* Design tokens — swap these for your own brand. Kept deliberately neutral
-   as a starting point; Tailwind generates utilities (bg-background,
-   text-foreground, font-sans, etc.) directly from these. */
-@theme {
-  --color-background: oklch(1 0 0);
-  --color-foreground: oklch(0.145 0 0);
-  --color-muted: oklch(0.556 0 0);
-  --color-border: oklch(0.922 0 0);
-  --color-primary: oklch(0.205 0 0);
-  --color-primary-foreground: oklch(0.985 0 0);
+/* Spectral (headings) is self-hosted via @fontsource rather than a Google
+   Fonts <link> — the site collects no visitor data, and a third-party font
+   request would leak every visitor's IP to Google on page load, which
+   works against that. Only the weight the design actually uses (400). */
+@import "@fontsource/spectral/400.css";
 
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
+/* PP Mori (body/UI text) — licensed font, self-hosted from public/fonts/.
+   Only the weights currently used by the design: Regular, Semibold (for
+   emphasis), and Italic (for rich-text body content). Add more .woff2
+   files to public/fonts/ and a matching @font-face block if a design needs
+   another weight. */
+@font-face {
+  font-family: "PP Mori";
+  src: url("/fonts/PPMori-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("/fonts/PPMori-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("/fonts/PPMori-Semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Design tokens — sourced from the Cedar Recovery Resources Figma file
+   (https://www.figma.com/design/n7vqd6mLCByB7nyT6Ea5DQ). Named after
+   Figma's own slate and orange variables so they stay traceable back to
+   the design; --color-* semantic tokens below map to them for existing
+   components (bg-background, text-foreground, etc.). */
+@theme {
+  --color-slate-50: #f6f7f8;
+  --color-slate-100: #eaeced;
+  --color-slate-200: #cacfd3;
+  --color-slate-600: #36434c;
+  --color-slate-700: #273036;
+  --color-slate-900: #0f1316;
+  --color-slate-950: #0c0e0f;
+  --color-orange-200: #f4d9cb;
+  --color-orange-300: #edc0a8;
+  --color-orange-400: #e39a74;
+  --color-orange-500: #dc8151;
+  --color-orange-600: #9f5f3c;
+  --color-orange-950: #120a06;
+
+  --color-background: #f7f6f4;
+  --color-foreground: var(--color-slate-700);
+  --color-muted: var(--color-slate-600);
+  --color-border: var(--color-slate-200);
+  /* Slate stays the primary button/text color even though orange-600 now
+     clears AA on its own (4.66:1 on this background, 5.03:1 on white) —
+     slate is the higher-contrast, higher-stability choice for the site's
+     main interactive color, and orange stays the accent: pills, eyebrows,
+     borders. Nothing stops using orange-600 for small text now if a
+     specific design calls for it. */
+  --color-primary: var(--color-slate-700);
+  --color-primary-foreground: var(--color-background);
+  --color-accent: var(--color-orange-600);
+  --color-accent-subtle: var(--color-orange-200);
+  --color-accent-subtle-foreground: var(--color-orange-950);
+
+  --font-sans: "PP Mori", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Spectral", Georgia, serif;
 
   --container-content: 72rem;
 }

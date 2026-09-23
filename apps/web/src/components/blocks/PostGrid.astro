@@ -1,0 +1,75 @@
+---
+// Homepage-only for now — not a pageBlocks entry, same as Hero. Always
+// shows every published post with client-side category filtering, rather
+// than being a configurable, reorderable block. If this needs to appear
+// on other Pages too, it should move into pageBlocks.ts instead.
+import Container from '../primitives/Container.astro'
+import { getCategories, getPosts } from '../../lib/payload'
+import PostCard from './PostCard.astro'
+
+const [categories, posts] = await Promise.all([getCategories(), getPosts()])
+---
+
+<section class="py-8">
+	<Container>
+		{
+			categories.length > 0 && (
+				<div class="flex flex-wrap items-center gap-1" role="group" aria-label="Filter by category">
+					{categories.map((category) => (
+						<button
+							type="button"
+							data-filter={category.slug}
+							aria-pressed="false"
+							class="rounded border border-border bg-slate-50 px-[10px] py-[10px] text-base tracking-[-0.24px] text-slate-900 transition aria-pressed:border-orange-400 aria-pressed:bg-accent-subtle"
+						>
+							{category.name}
+						</button>
+					))}
+				</div>
+			)
+		}
+		<div
+			id="post-grid"
+			class:list={['grid gap-6 sm:grid-cols-2 lg:grid-cols-3', categories.length > 0 && 'mt-6']}
+		>
+			{posts.map((post) => <PostCard post={post} />)}
+		</div>
+		{posts.length === 0 && <p class="text-muted">No resources published yet.</p>}
+	</Container>
+</section>
+
+<script>
+	// Multi-select, OR-combined: a post shows if it has ANY currently-active
+	// category, and everything shows when no filter is active. Plain DOM,
+	// no framework — matches the rest of this app's "no client JS
+	// framework" stance (see lexicalToHtml.ts's comment for the same
+	// reasoning). Visual active/inactive state comes from Tailwind's
+	// `aria-pressed:` variant on the buttons themselves, so this script
+	// only ever touches the `aria-pressed` attribute and each card's
+	// `hidden` class — never any styling directly.
+	const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]')
+	const cards = document.querySelectorAll<HTMLElement>('#post-grid > [data-categories]')
+
+	function activeSlugs(): string[] {
+		return Array.from(buttons)
+			.filter((button) => button.getAttribute('aria-pressed') === 'true')
+			.map((button) => button.dataset.filter ?? '')
+	}
+
+	function applyFilter() {
+		const active = activeSlugs()
+		cards.forEach((card) => {
+			const cardSlugs = (card.dataset.categories ?? '').split(' ').filter(Boolean)
+			const visible = active.length === 0 || active.some((slug) => cardSlugs.includes(slug))
+			card.classList.toggle('hidden', !visible)
+		})
+	}
+
+	buttons.forEach((button) => {
+		button.addEventListener('click', () => {
+			const isPressed = button.getAttribute('aria-pressed') === 'true'
+			button.setAttribute('aria-pressed', String(!isPressed))
+			applyFilter()
+		})
+	})
+</script>

@@ -209,6 +209,9 @@ importers:
       '@astrojs/sitemap':
         specifier: ^3.7.4
         version: 3.7.4
+      '@fontsource/spectral':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@tailwindcss/typography':
         specifier: ^0.5.20
         version: 0.5.20(tailwindcss@4.3.3)
@@ -1300,6 +1303,9 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
+  '@fontsource/spectral@5.3.0':
+    resolution: {integrity: sha512-2TL5WWGOZj4SIsBmPFEzKeA60tXXd1Qp1OqaaVEWkJL8IfSGLk6YmiusmC441iFkdJDIuFelu1r8lhCmQUU3mw==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -7053,6 +7059,8 @@ snapshots:
       tabbable: 6.5.0
 
   '@floating-ui/utils@0.2.12': {}
+
+  '@fontsource/spectral@5.3.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

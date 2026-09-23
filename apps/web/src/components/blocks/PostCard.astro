@@ -1,0 +1,70 @@
+---
+import type { Category, Post } from 'types'
+
+interface Props {
+  post: Post
+  // Omits the summary line — used in the post sidebar's "You May Also
+  // Like" list, where the design shows a shorter card than the homepage
+  // grid's. Height sizes naturally rather than matching the design's
+  // literal 182px, which looks like an artifact of these specific
+  // placeholder lengths rather than a real constraint.
+  compact?: boolean
+}
+
+const { post, compact = false } = Astro.props
+// getPosts() fetches at depth=2, so categories are populated Category
+// objects, not bare IDs — the type guard is only to satisfy the union
+// TypeScript still sees from the relationship field's generated type.
+const categories = (post.categories ?? []).filter((c): c is Category => typeof c === 'object')
+// data-categories drives the client-side filter script in PostGrid.astro —
+// slugs, not IDs, so it's readable straight from devtools.
+const categorySlugs = categories.map((c) => c.slug).join(' ')
+// The arrow is a visual "this links out" signal, not a second link target
+// — the whole card still goes to the internal post page either way,
+// matching /posts/index.astro's existing behavior. Linking the card
+// straight to the external URL instead, with no intermediary page load,
+// is a reasonable future enhancement — not built now.
+const isExternal = Boolean(post.externalLink?.url)
+---
+
+<a
+	href={`/posts/${post.slug}`}
+	data-categories={categorySlugs}
+	class="group flex flex-col gap-[29px] rounded-xl border border-border p-8 transition hover:border-orange-500 hover:bg-white/50 hover:shadow-[0px_4px_4px_0px_rgba(220,129,81,0.2)] focus-visible:border-orange-500 focus-visible:bg-white/50 focus-visible:shadow-[0px_4px_4px_0px_rgba(220,129,81,0.2)]"
+>
+	<div class="flex w-full items-center justify-between gap-4">
+		<div class="flex flex-wrap items-center gap-1">
+			{
+				categories.map((category) => (
+					<span class="rounded-full bg-accent-subtle px-2 py-1 text-xs leading-[1.15] tracking-[-0.12px] text-accent-subtle-foreground whitespace-nowrap transition-colors group-hover:bg-orange-300 group-focus-visible:bg-orange-300">
+						{category.name}
+					</span>
+				))
+			}
+		</div>
+		{
+			isExternal && (
+				// Motion, not a color/size change, signals interactivity on
+				// hover — the arrow "reaches" toward the direction it already
+				// points. Mirrored on focus-visible so keyboard users get the
+				// same signal as mouse users, not just the card's border/shadow.
+				<span
+					class="-rotate-45 shrink-0 transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-focus-visible:-translate-y-0.5 group-focus-visible:translate-x-0.5"
+					aria-hidden="true"
+				>
+					<img src="/icons/arrow-up-right.svg" alt="" />
+				</span>
+			)
+		}
+	</div>
+	<p class="font-serif text-[32px] leading-[1.1] tracking-[-0.64px] text-muted transition-colors group-hover:text-slate-700 group-focus-visible:text-slate-700">
+		{post.title}
+	</p>
+	{
+		!compact && (
+			<p class="text-sm leading-[1.44] tracking-[-0.21px] text-slate-900 transition-colors group-hover:text-slate-950 group-focus-visible:text-slate-950">
+				{post.summary}
+			</p>
+		)
+	}
+</a>

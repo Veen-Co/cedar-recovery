@@ -1,0 +1,25 @@
+---
+// Site-wide (added in Layout.astro), not homepage-only — the Figma frame
+// only shows it on the homepage mockup, but a header showing just the
+// logo is a reasonable default on every page. Logo only for now, per
+// scope — no nav links, no search (search is a post-MVP addition).
+import Container from "./primitives/Container.astro";
+
+// Reusing the licensed logo file already in the repo (public/cedar-recovery-logo.webp)
+// rather than re-fetching Figma's flattened PNG export of the same asset —
+// same file, better provenance/quality.
+---
+
+<header class="py-6">
+    <Container>
+        <a href="/" class="inline-block">
+            <img
+                src="/cedar-recovery-logo.webp"
+                alt="Cedar Recovery"
+                width="347"
+                height="91"
+                class="h-12 w-auto sm:h-[52px]"
+            />
+        </a>
+    </Container>
+</header>
