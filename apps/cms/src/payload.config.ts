@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
@@ -27,6 +28,11 @@ export default buildConfig({
   collections: [Users, Media, Categories, Posts, Pages],
   globals: [Home],
   editor: lexicalEditor(),
+  email: resendAdapter({
+    defaultFromAddress: process.env.EMAIL_FROM_ADDRESS || '',
+    defaultFromName: process.env.EMAIL_FROM_NAME || 'Cedar Recovery',
+    apiKey: process.env.RESEND_API_KEY || '',
+  }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     // Written into packages/types so apps/web (Astro) can import these
