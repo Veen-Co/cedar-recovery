@@ -131,6 +131,37 @@ This template repo itself isn't meant to be directly hosted — this is the reci
 
 **Production migrations are automated.** `apps/cms`'s `build` script runs `payload migrate && next build` — Vercel's build step applies any pending migrations before building, so a production deploy never depends on push mode (which is disabled anyway — see "Schema changes & migrations" above). Just make sure every schema change went through `migrate:create` locally and the resulting migration file is committed before deploying — a schema change made only via editing config, without generating its migration, won't apply in production.
 
+## Security baseline
+
+Three things travel with the template (they're files, so "Use this template" copies them), and a few don't (they're GitHub repo settings, so every new project must switch them on by hand).
+
+**In the repo:**
+
+- `pnpm-workspace.yaml` → `audit:` — the policy. `level: high` is what counts as failing; `ignore:` is the accepted-risk register. Every entry carries a reason and a trigger for revisiting it.
+- `.github/workflows/security-audit.yml` — runs `pnpm audit --prod` weekly, on demand, and on PRs that touch dependencies. It reads the lockfile only (no `pnpm install`), so nothing from the dependency tree executes. It fails on any production advisory at or above `audit.level` that isn't in `audit.ignore`; the dev-tooling tree is summarized but never fails the job.
+- `.github/dependabot.yml` — grouped security updates (one PR, not one per package) and monthly version updates, with `payload`/`@payloadcms/*`, `next`/`eslint-config-next`, and `astro`/`@astrojs/*` each grouped so they move together. Grouping lives in this file on purpose: the repo-level "Grouped security updates" toggle is a setting and wouldn't copy to a new project.
+
+**Per new repo — settings that do not copy from a template.** Run once from inside the new clone (`gh` fills in `{owner}/{repo}` from the git remote):
+
+```bash
+gh api -X PUT repos/{owner}/{repo}/vulnerability-alerts            # Dependabot alerts
+gh api -X PUT repos/{owner}/{repo}/automated-security-fixes        # Dependabot security updates
+gh api -X PUT repos/{owner}/{repo}/private-vulnerability-reporting # lets researchers report privately (public repos)
+gh api -X PATCH repos/{owner}/{repo} \
+  -f 'security_and_analysis[secret_scanning][status]=enabled' \
+  -f 'security_and_analysis[secret_scanning_push_protection][status]=enabled'
+```
+
+Check them with `gh api repos/{owner}/{repo} --jq .security_and_analysis` and `gh api -i repos/{owner}/{repo}/vulnerability-alerts` (`204` = on). Secret scanning and push protection are free on public repos; private repos need a paid GitHub security add-on (check GitHub's current plans, the product names change). The workflow also only fires from the **default branch**, and GitHub disables scheduled workflows on a public repo after 60 days with no repo activity — if audits stop arriving, check the Actions tab for a "disabled" banner.
+
+**When the audit goes red**, work down this list and stop at the first that fits:
+
+1. **Bump it.** `pnpm update <pkg> -r --depth 100` re-resolves transitive packages within their ranges; if a *direct* dependency has a fix, bump its version. Payload packages must all move to the same version together.
+2. **Find who pins it.** `pnpm why <pkg>`. If a parent pins an exact vulnerable version, a scoped override in `pnpm-workspace.yaml` (`'pkg@<fixed': ^fixed`) forces the patched one — only within the same major, and with a comment saying why (see the existing `dompurify` entry).
+3. **Accept it, in writing.** Add the GHSA ID to `audit.ignore` with a comment: why it doesn't apply here, and what would make you revisit it. Never "fix" a red audit by raising `audit.level`.
+
+**Known limitation:** pnpm 12 writes `pnpm-lock.yaml` as two YAML documents when `packageManager` pins a pnpm version, and GitHub's docs list that format as unsupported for Dependabot alerts and security updates. In practice they worked on this project (alerts and Dependabot PRs were generated from this lockfile), but that's not guaranteed. The scheduled audit above is the backstop: it uses pnpm itself, so it doesn't depend on GitHub parsing the lockfile. A cheap health check after a dependency upgrade merges: the open-alert count on the Security tab should drop to match `pnpm audit`; if it doesn't, GitHub can't read the new lockfile.
+
 ## Known gotchas (verbatim, so they don't get rediscovered)
 
 - **CLI scaffolds land in the wrong place.** Both `create-payload-app` and `create-astro` have scaffolded with hyphenated package names (`apps-cms` instead of `cms`) and, once, wrote the directory itself as a root-level sibling instead of nested under `apps/`. Verify the actual output location and `package.json` `name` field after scaffolding; fix by hand if needed.
