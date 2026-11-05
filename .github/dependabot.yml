@@ -1,0 +1,42 @@
+version: 2
+
+# Lives in the repo (not in GitHub's Settings UI) so it carries over when this
+# template is used for a new project — repo settings don't. See SETUP.md,
+# "Security baseline".
+#
+# Security updates (Dependabot alerts -> PRs) ignore `schedule` and
+# `cooldown` and open as soon as an advisory is published. Version updates
+# below run monthly and get GitHub's default 3-day cooldown, in the same
+# spirit as `minimumReleaseAge` in pnpm-workspace.yaml.
+updates:
+  - package-ecosystem: 'npm' # also covers pnpm
+    # Must point at the folders holding package.json files, or grouped
+    # security updates won't apply to them.
+    directories:
+      - '/'
+      - '/apps/*'
+      - '/packages/*'
+    schedule:
+      interval: 'monthly'
+    groups:
+      # One PR for every available security fix, instead of one per package
+      # (they all edit the same lockfile and would conflict).
+      security:
+        applies-to: security-updates
+        patterns: ['*']
+      # Packages that must move together: Payload requires every
+      # `payload` / `@payloadcms/*` package at the identical version.
+      payload:
+        applies-to: version-updates
+        patterns: ['payload', '@payloadcms/*']
+      next:
+        applies-to: version-updates
+        patterns: ['next', 'eslint-config-next']
+      astro:
+        applies-to: version-updates
+        patterns: ['astro', '@astrojs/*']
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'

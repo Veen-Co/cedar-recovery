@@ -1,0 +1,63 @@
+name: Security audit
+
+# Dependency audit that doesn't rely on GitHub's own dependency graph (which
+# doesn't officially support pnpm 12's two-document lockfile — see SETUP.md,
+# "Security baseline"). Fails when a production dependency has an advisory at
+# or above `audit.level` in pnpm-workspace.yaml that isn't in `audit.ignore`.
+# GitHub emails whoever last edited the schedule below when a scheduled run
+# fails.
+#
+# Two limits of `schedule` worth knowing: it only runs from the default
+# branch, and on a public repo GitHub disables it after 60 days with no repo
+# activity (re-enable it under the Actions tab if that ever happens).
+on:
+  schedule:
+    - cron: '17 13 * * 1' # Mondays 13:17 UTC; off the hour, since top-of-hour runs get delayed
+  workflow_dispatch:
+  # Also check PRs that change dependencies, so a vulnerable version is
+  # caught before it merges instead of at the next weekly run.
+  pull_request:
+    paths:
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '**/package.json'
+
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Audit dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      # Same pnpm/Node setup as ci.yml: pnpm reads the root package.json's
+      # `packageManager` field, so the version always matches local + Vercel.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # No `pnpm install`: audit reads the lockfile, so nothing from the
+      # dependency tree (install scripts included) runs in this job.
+      - name: Production dependencies (fails at audit.level and above)
+        run: pnpm audit --prod
+
+      # Dev tooling runs on contributors' machines and in CI, so it's worth
+      # seeing, but Dependabot PRs are how those get fixed, so this step
+      # never fails the job. Overrides audit.level to show everything.
+      - name: Full dependency tree (informational)
+        if: always()
+        continue-on-error: true
+        run: |
+          pnpm audit --audit-level low --json | jq -r '
+            "### Full dependency tree (prod + dev)",
+            "",
+            (.metadata.vulnerabilities | to_entries | map("\(.key): \(.value)") | join(" · "))
+          ' >> "$GITHUB_STEP_SUMMARY"
