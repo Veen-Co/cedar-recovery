@@ -139,7 +139,7 @@ Three things travel with the template (they're files, so "Use this template" cop
 
 - `pnpm-workspace.yaml` → `audit:` — the policy. `level: high` is what counts as failing; `ignore:` is the accepted-risk register. Every entry carries a reason and a trigger for revisiting it.
 - `.github/workflows/security-audit.yml` — runs `pnpm audit --prod` weekly, on demand, and on PRs that touch dependencies. It reads the lockfile only (no `pnpm install`), so nothing from the dependency tree executes. It fails on any production advisory at or above `audit.level` that isn't in `audit.ignore`; the dev-tooling tree is summarized but never fails the job.
-- `.github/dependabot.yml` — grouped security updates (one PR, not one per package) and monthly version updates, with `payload`/`@payloadcms/*`, `next`/`eslint-config-next`, and `astro`/`@astrojs/*` each grouped so they move together. Grouping lives in this file on purpose: the repo-level "Grouped security updates" toggle is a setting and wouldn't copy to a new project.
+- `.github/dependabot.yml` — grouped security updates (one PR, not one per package) and monthly version updates, with `payload`/`@payloadcms/*`, `next`/`eslint-config-next`, `astro`/`@astrojs/*`, and `react`/`react-dom`/`@types/react*` each grouped so they move together. **Major-version bumps are ignored on purpose**: each one is a deliberate upgrade you do by hand (typescript 7 breaks `astro check`, graphql 17 is outside Payload's supported range, Payload 4 needs its codemod). Grouping lives in this file because the repo-level "Grouped security updates" toggle is a setting and wouldn't copy to a new project.
 
 **Per new repo — settings that do not copy from a template.** Run once from inside the new clone (`gh` fills in `{owner}/{repo}` from the git remote):
 
@@ -161,6 +161,8 @@ Check them with `gh api repos/{owner}/{repo} --jq .security_and_analysis` and `g
 3. **Accept it, in writing.** Add the GHSA ID to `audit.ignore` with a comment: why it doesn't apply here, and what would make you revisit it. Never "fix" a red audit by raising `audit.level`.
 
 **Known limitation:** pnpm 12 writes `pnpm-lock.yaml` as two YAML documents when `packageManager` pins a pnpm version, and GitHub's docs list that format as unsupported for Dependabot alerts and security updates. In practice they worked on this project (alerts and Dependabot PRs were generated from this lockfile), but that's not guaranteed. The scheduled audit above is the backstop: it uses pnpm itself, so it doesn't depend on GitHub parsing the lockfile. A cheap health check after a dependency upgrade merges: the open-alert count on the Security tab should drop to match `pnpm audit`; if it doesn't, GitHub can't read the new lockfile.
+
+**Dependabot in a pnpm workspace: list the root only.** `directory: '/'` updates every workspace package's `package.json` and the one root lockfile together. Adding `directories: ['/apps/*', ...]` makes Dependabot also open PRs per sub-package that edit `package.json` but *not* the lockfile, so they fail `pnpm install --frozen-lockfile` in CI and on Vercel. If a Dependabot PR fails with `ERR_PNPM_OUTDATED_LOCKFILE`, that's the cause. Also never merge a Dependabot PR on a green build alone: a green build doesn't exercise every endpoint (graphql 17 built fine and broke `/api/graphql` at runtime), and bumping `react` without `react-dom` builds fine and breaks at runtime.
 
 ## Known gotchas (verbatim, so they don't get rediscovered)
 
